@@ -1,0 +1,251 @@
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DM WELCOME MESSAGE SYSTEM IMPLEMENTATION GUIDE
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This guide will help you integrate the complete DM welcome message system into your Discord.py bot.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+REQUIREMENTS:
+
+1. Python 3.8 or higher
+2. discord.py library (version 2.0 or higher)
+3. A Discord bot token
+4. Basic knowledge of Python and Discord bot development
+5. Bot with proper intents enabled
+
+Required packages (install with pip):
+    pip install discord.py
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+QUICK START (For Experienced Users):
+
+If you're familiar with Discord.py bots, here's the minimal setup:
+
+1. Place "welcome_message_for_DMs.py" in your bot directory
+2. Enable Server Members Intent in your bot code and Discord Developer Portal
+3. Add this to your bot: `await bot.load_extension("welcome_message_for_DMs")`
+4. Customize server name and member title in the file
+5. Run your bot!
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 1: DOWNLOAD AND PLACE THE FILE
+
+1. Download the "welcome_message_for_DMs.py" file
+2. Place the file in your bot's main directory (same folder as your main bot file)
+3. Make sure the filename is exactly "welcome_message_for_DMs.py"
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 2: ENABLE REQUIRED INTENTS
+
+Your bot must have the "Server Members Intent" enabled:
+
+import discord
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.members = True  # REQUIRED for on_member_join event
+bot = commands.Bot(command_prefix="/", intents=intents)
+
+IMPORTANT: You must also enable "Server Members Intent" in your Discord Developer Portal:
+1. Go to https://discord.com/developers/applications
+2. Select your bot application
+3. Go to "Bot" section
+4. Scroll down to "Privileged Gateway Intents"
+5. Enable "Server Members Intent"
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 3: LOAD THE DM WELCOME MESSAGE SYSTEM
+
+Choose ONE of these methods:
+
+METHOD A: Using setup_hook (Recommended for most bots)
+
+class MyBot(commands.Bot):
+    async def setup_hook(self):
+        await self.load_extension("welcome_message_for_DMs")
+
+bot = MyBot(command_prefix="/", intents=intents)
+
+METHOD B: Using on_ready event
+
+@bot.event
+async def on_ready():
+    await bot.load_extension("welcome_message_for_DMs")
+    print("Bot is ready!")
+
+METHOD C: Direct cog addition (if not using extensions)
+
+from welcome_message_for_DMs import WelcomeMessageForDMs
+await bot.add_cog(WelcomeMessageForDMs(bot))
+
+Note: Most modern Discord bots use Method A (setup_hook). Only use Method B if you have a specific reason to structure your bot differently.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 4: CUSTOMIZE THE WELCOME MESSAGE
+
+CUSTOMIZE SERVER NAME AND MEMBER TITLE:
+- Open "welcome_message_for_DMs.py"
+- Find the lines: `self.server_name = "YOUR SERVER NAME"` and `self.member_title = "homie"`
+- Change these to match your server
+
+CUSTOMIZE EMOJIS:
+- Edit the `self.welcome_emojis` list to add/remove emojis
+- Each welcome message will use 3 different random emojis
+- You can use custom server emojis or standard Discord emojis
+
+REPLACE WITH YOUR SERVER EMOJI MARKDOWNS
+If you don't have server emoji's just use the markdowns of standard Discord emoji's
+
+self.welcome_emojis = [
+    "🎉", "👋", "🎊", "✨", "🌟", "💫", "🔥", "💯", "🎯", "🚀",
+    "💎", "⭐", "🎁", "🎈", "🎪", "🎨", "🎭", "🎪", "🎟️", "🎫"
+]
+
+
+CUSTOMIZE MESSAGE FORMAT:
+- Modify the message format in the `generate_welcome_message` function
+- The current format includes:
+  Line 1: "[emoji1] **What up @username welcome to [ServerName]!!** [emoji1]"
+  Line 2: "We hope you have a grand time in our cozy server!! [emoji2]"
+  Line 3: "Let the [member_title]s welcome ya in and start enjoying your space here [emoji3]"
+
+CUSTOMIZE DELAY:
+- Change `self.welcome_delay = 40` to your preferred delay in seconds
+- Lower values = faster messages, higher values = slower messages
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 5: COMPLETE BOT SETUP EXAMPLE
+
+import discord
+from discord.ext import commands
+import asyncio
+
+intents = discord.Intents.default()
+intents.members = True
+
+class MyBot(commands.Bot):
+    async def setup_hook(self):
+        await self.load_extension("welcome_message_for_DMs")
+
+bot = MyBot(command_prefix="/", intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f"{bot.user} is ready!")
+    print("DM Welcome message system loaded successfully!")
+
+# Replace YOUR_BOT_TOKEN with your actual bot token
+bot.run("YOUR_BOT_TOKEN")
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 6: REQUIRED BOT PERMISSIONS
+
+The bot must have these permissions in your Discord server:
+- "Send Messages" permission (for sending DMs)
+- "View Channels" permission to see member joins
+- "Use External Emojis" permission (if using custom emojis from other servers)
+
+To check permissions:
+1. Right-click on your bot in the member list
+2. Check that it has the required permissions
+3. If not, ask a server admin to adjust the bot's role permissions
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+STEP 7: TESTING AND VERIFICATION
+
+1. Start your bot
+2. Check the console for: "DM Welcome message system loaded successfully!"
+3. Invite a test account or have someone join your server
+4. Wait for the configured delay (default: 40 seconds)
+5. The bot should automatically send a DM to the new member
+6. Check the console for confirmation messages like "✅ Sent welcome DM to [username]"
+
+CONSOLE OUTPUT TO EXPECT:
+- On startup: "DM Welcome message system loaded successfully!"
+- When someone joins: No immediate output (waiting for delay)
+- After delay: "✅ Sent welcome DM to [username]" or error messages if issues occur
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+TROUBLESHOOTING COMMON ISSUES
+
+IF THE COG DOESN'T LOAD:
+- Check console for import errors
+- Verify the filename is exactly "welcome_message_for_DMs.py"
+- Make sure the file is in the same directory as your main bot file
+
+IF WELCOME MESSAGES DON'T APPEAR:
+- Verify "Server Members Intent" is enabled in Discord Developer Portal
+- Check that `intents.members = True` is set in your bot code
+- Ensure the bot has proper permissions
+- Check console for error messages
+
+IF THE BOT CRASHES ON STARTUP:
+- Check that discord.py version is 2.0 or higher
+- Verify all required intents are properly configured
+- Check console for specific error messages
+
+IF EMOJIS DON'T SHOW:
+- Ensure the bot has "Use External Emojis" permission
+- Check that the emoji IDs in the list are valid
+- Verify the emojis are accessible to your bot
+- Consider using standard Discord emojis instead of custom ones
+
+IF MESSAGES ARE TOO FAST/SLOW:
+- Adjust the `welcome_delay` value in the code
+- Lower values = faster messages, higher values = slower messages
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ALTERNATIVE IMPLEMENTATION OPTIONS:
+
+If you don't want to use the Cog system, the file also includes:
+
+1. WelcomeMessageForDMsBot class - Run as a standalone bot
+2. Manual integration - Copy specific functions into your existing bot
+3. Full documentation for each implementation method
+
+See the comments in the file for detailed instructions on each option.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I hope you and your members LOVE IT! 
+
+ENJOY ~ landn.thrn
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
